@@ -34,11 +34,8 @@ int main(int argc, char *argv[])
 
 /* DEFINE ENTITIES HERE */
 
-// allocated array for left & right wall
-  /* eventually add 2d array for the walls  Entity** walls = (Entity**)malloc(sizeof(Entity*) * 4); */
+/* 2D ARRAY */
   Entity** walls = (Entity**)malloc(sizeof(Entity*) * 4);
-  // Entity* left_wall = (Entity*)malloc(sizeof(Entity) * HEIGHT/TILEHEIGHT);
-  // Entity* right_wall = (Entity*)malloc(sizeof(Entity) * HEIGHT/TILEHEIGHT);
 
   // LOOP FOR 2D DYNAMICALLY ALLOCATED ARRAY - i=0 is left i=1 is right i=2 is top i =3
   for (int i=0; i < 4; i++)
@@ -47,16 +44,21 @@ int main(int argc, char *argv[])
     // LEFT AND RIGHT WALLS
     if (i==0 || i==1)
     {
-      walls[i] = (Entity*)malloc(sizeof(Entity) * HEIGHT/TILEHEIGHT);
-      for (int l=0; l < HEIGHT/TILEHEIGHT; l++)
+      // SUBTRACT 1 FOR CORNERS
+      // allocate space for the amount of tiles around the edge
+      walls[i] = (Entity*)malloc(sizeof(Entity) * (HEIGHT/TILEHEIGHT - 1));
+
+      for (int l=0; l < (HEIGHT/TILEHEIGHT) - 1; l++)
       {
+        // left wall
         if (i==0)
         {
-          walls[i][l] = Entity(0, l * TILEHEIGHT, background, SCALE);
+          walls[i][l] = Entity(0, (l * TILEHEIGHT) + TILEHEIGHT, background, SCALE);
         }
+        // right wall
         else if (i==1)
         {
-          walls[i][l] = Entity(WIDTH-TILEWIDTH, l * TILEHEIGHT, background, SCALE);
+          walls[i][l] = Entity(WIDTH-TILEWIDTH, (l * TILEHEIGHT) + TILEHEIGHT, background, SCALE);
         }
       }
     }
@@ -64,24 +66,23 @@ int main(int argc, char *argv[])
     // TOP AND BOTTOM WALLS
     if (i==2 || i==3)
     {
+      // allocate space for the amount of tiles around the edge
       walls[i] = (Entity*)malloc(sizeof(Entity) * WIDTH/TILEWIDTH);
-      std::cout << &walls[i] << std::endl;
+
       for (int l=0; l < WIDTH/TILEWIDTH; l++)
       {
+        // top wall
         if (i==2)
         {
           walls[i][l] = Entity(TILEWIDTH * l, 0, background, SCALE);
         }
+        // bottom wall
         else if (i==3)
         {
           walls[i][l] = Entity(TILEWIDTH * l, HEIGHT-TILEHEIGHT, background, SCALE);
         }
       }
     }
-
-    /* std::cout << i << std::endl;
-    left_wall[i] = Entity(0, i*64, background, SCALE);
-    right_wall[i] = Entity(WIDTH-TILEWIDTH, i*64, background, SCALE); */
   }  
 
   SDL_Event event;
@@ -102,18 +103,16 @@ int main(int argc, char *argv[])
     // render through wall array
     for (int i = 0; i < 4; i++)
     {
-      // std::cout << i << std::endl;
-      // render each entity 
-      // window.render(left_wall[i], 1);
-      // window.render(right_wall[i], 1);
+      // render left and right walls
       if (i == 0 || i == 1)
       {
-        for (int l=0; l < HEIGHT/TILEHEIGHT; l++)
+        // SUBTRACT 1 FOR CORNERS
+        for (int l=0; l < HEIGHT/TILEHEIGHT - 1; l++)
         {
           window.render(walls[i][l], 1);
         }
       }
-
+      // render top and bottom walls
       if (i == 2 || i == 3)
         for (int l=0; l < WIDTH/TILEWIDTH; l++)
         {
@@ -125,12 +124,7 @@ int main(int argc, char *argv[])
 
   }
 
-/* clean up and quit after game loop ends */
-
-
-  /* FREE ALL ALLOCATED MEMORY */
-  // free(left_wall);
-  // free(right_wall);
+/* clean up and quit after game loop boolean is false */
 
   for (int i=0; i < 4; i++)
   {
