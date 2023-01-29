@@ -3,6 +3,7 @@
 #include <SDL2_image/SDL_image.h>
 
 #include <entity.hpp>
+#include <player.hpp>
 
 // use p_ to indicate a parameter
 
@@ -14,6 +15,7 @@ public:
     void cleanUp();
     void clear();
     void render(Entity &p_entity, int scale);
+    void render_player(Player &p_player, int scale);
     void display();
 private:
     SDL_Window* window;

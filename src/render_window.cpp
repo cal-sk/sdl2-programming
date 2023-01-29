@@ -51,6 +51,27 @@ void RenderWindow::render(Entity &p_entity, int scale)
     // render the texture to the screen
     SDL_RenderCopy(renderer, p_entity.getTexture(), &src, &dst);
 }
+
+// render the player
+void RenderWindow::render_player(Player &p_player, int scale)
+{
+    // 
+    SDL_Rect src;
+    src.x = p_player.getCurrentFrame().x;   
+    src.y = p_player.getCurrentFrame().y;
+    src.w = p_player.getCurrentFrame().w;
+    src.h = p_player.getCurrentFrame().h;
+    
+    //
+    SDL_Rect dst;
+    dst.x = p_player.GetX();
+    dst.y = p_player.GetY();
+    dst.w = p_player.getCurrentFrame().w * scale;
+    dst.h = p_player.getCurrentFrame().h * scale;
+
+    // render the texture to the screen
+    SDL_RenderCopy(renderer, p_player.getTexture(), &src, &dst);
+}
 // clear renderer
 void RenderWindow::clear()
 {

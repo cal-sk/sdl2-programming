@@ -6,13 +6,14 @@
 // include header files
 #include <render_window.hpp>
 #include <entity.hpp>
+#include <player.hpp>
 
 // define window height and width
-#define WIDTH 640
-#define HEIGHT 512
-#define TILEWIDTH 64
-#define TILEHEIGHT 64
+#define WIDTH 1280
+#define HEIGHT 1024
 #define SCALE 4
+#define TILEWIDTH SCALE * 16
+#define TILEHEIGHT SCALE * 16
 
 
 int main(int argc, char *argv[])
@@ -29,10 +30,12 @@ int main(int argc, char *argv[])
 
 /* LOAD TEXTURES HERE */
 
-  SDL_Texture* background = window.loadTexture("res/bg.png");
+  SDL_Texture* wall_texture = window.loadTexture("res/bg.png");
+  SDL_Texture* player_texture = window.loadTexture("res/player.png");
 
 
-/* DEFINE ENTITIES HERE */
+/* DEFINE ENTITIES AND PLAYER HERE */
+  Player player(128, 128, player_texture, SCALE);
 
 /* 2D ARRAY */
   Entity** walls = (Entity**)malloc(sizeof(Entity*) * 4);
@@ -53,12 +56,12 @@ int main(int argc, char *argv[])
         // left wall
         if (i==0)
         {
-          walls[i][l] = Entity(0, (l * TILEHEIGHT) + TILEHEIGHT, background, SCALE);
+          walls[i][l] = Entity(0, (l * TILEHEIGHT) + TILEHEIGHT, wall_texture, SCALE);
         }
         // right wall
         else if (i==1)
         {
-          walls[i][l] = Entity(WIDTH-TILEWIDTH, (l * TILEHEIGHT) + TILEHEIGHT, background, SCALE);
+          walls[i][l] = Entity(WIDTH-TILEWIDTH, (l * TILEHEIGHT) + TILEHEIGHT, wall_texture, SCALE);
         }
       }
     }
@@ -74,12 +77,12 @@ int main(int argc, char *argv[])
         // top wall
         if (i==2)
         {
-          walls[i][l] = Entity(TILEWIDTH * l, 0, background, SCALE);
+          walls[i][l] = Entity(TILEWIDTH * l, 0, wall_texture, SCALE);
         }
         // bottom wall
         else if (i==3)
         {
-          walls[i][l] = Entity(TILEWIDTH * l, HEIGHT-TILEHEIGHT, background, SCALE);
+          walls[i][l] = Entity(TILEWIDTH * l, HEIGHT-TILEHEIGHT, wall_texture, SCALE);
         }
       }
     }
@@ -94,6 +97,11 @@ int main(int argc, char *argv[])
     {
       if (event.type == SDL_QUIT){
         gameRunning = false;
+      }
+      // check for key input - NOTE: add different key stroke later
+      if (event.type == SDL_KEYDOWN)
+      {
+        player.move(0, TILEWIDTH);
       }
     }
     window.clear();
@@ -120,6 +128,7 @@ int main(int argc, char *argv[])
         } 
 
     }
+    window.render_player(player, 1);
     window.display();
 
   }
