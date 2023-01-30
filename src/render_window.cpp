@@ -53,7 +53,7 @@ void RenderWindow::render(Entity &p_entity, int scale)
 }
 
 // render the player
-void RenderWindow::render_player(Player &p_player, int scale)
+void RenderWindow::render_player(Player &p_player, int scale, SDL_RendererFlip flip)
 {
     // 
     SDL_Rect src;
@@ -70,7 +70,8 @@ void RenderWindow::render_player(Player &p_player, int scale)
     dst.h = p_player.getCurrentFrame().h * scale;
 
     // render the texture to the screen
-    SDL_RenderCopy(renderer, p_player.getTexture(), &src, &dst);
+    // use render copy ex to flip the texture 
+    SDL_RenderCopyEx(renderer, p_player.getTexture(), &src, &dst,0, NULL, flip);
 }
 // clear renderer
 void RenderWindow::clear()

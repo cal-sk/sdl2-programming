@@ -1,6 +1,7 @@
 #include <player.hpp>
 #include <SDL2/SDL.h>
 #include<SDL2_image/SDL_image.h>
+#include <entity.hpp>
 #include <iostream>
 
 Player::Player(float p_x, float p_y, SDL_Texture* p_tex, int scale)
@@ -15,18 +16,44 @@ Player::Player(float p_x, float p_y, SDL_Texture* p_tex, int scale)
 
 
 // move the player x, to move the destination rect
-void Player::move(int moveDir, float distance)
+void Player::move(int p_moveDir, float p_distance)
 {
-	// NOTE: Add up and down movement
-	if (moveDir == 0)
+	if (p_moveDir == 0)
 	{
-		x += distance;
+		x += p_distance;
 	}
-	if (moveDir == 1)
+	if (p_moveDir == 1)
 	{
-		x -= distance;
+		x -= p_distance;
 	
 	}
+	if (p_moveDir == 2)
+	{
+		y -= p_distance;
+	}
+	if (p_moveDir == 3)
+	{
+		y += p_distance;
+	
+	}
+}
+
+void Player::isColliding(Entity &p_entity)
+{
+	int entityX, entityY;
+	int entityW, entityH;
+	entityX = p_entity.GetX();
+	entityY = p_entity.GetY();
+	entityW = p_entity.getCurrentFrame().w * 4;
+	entityH = p_entity.getCurrentFrame().h * 4;
+
+	// add colliding logic here
+}
+
+/* GET COLLIDER BOOL */
+bool Player::getCollidingStatus()
+{
+	return colliding;
 }
 
 /* GET X POSITION */

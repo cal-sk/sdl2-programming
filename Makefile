@@ -2,7 +2,7 @@ SRC_DIR = src
 BUILD_DIR = build
 CC = g++
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
-OBJ_NAME = game
+OBJ_NAME = roguelike
 INCLUDE_PATHS = -Iinclude
 LIBRARY_PATHS = -Llib
 COMPILER_FLAGS = -std=c++11 -Wall -O0 -g
