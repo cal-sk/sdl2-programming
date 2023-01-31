@@ -10,6 +10,7 @@ Player::Player(float p_x, float p_y, SDL_Texture* p_tex, int scale)
 	// define the current frame SDL_Rect
 	currentFrame.x = 0;
 	currentFrame.y = 0;
+	colliding = false;
 	currentFrame.w = 16 * scale;
 	currentFrame.h = 16 * scale;
 }
@@ -40,14 +41,23 @@ void Player::move(int p_moveDir, float p_distance)
 
 void Player::isColliding(Entity &p_entity)
 {
-	int entityX, entityY;
-	int entityW, entityH;
+	float entityX, entityY;
+	float entityW, entityH;
 	entityX = p_entity.GetX();
 	entityY = p_entity.GetY();
-	entityW = p_entity.getCurrentFrame().w * 4;
-	entityH = p_entity.getCurrentFrame().h * 4;
+	entityW = p_entity.getCurrentFrame().w;
+	entityH = p_entity.getCurrentFrame().h;
 
 	// add colliding logic here
+	if (x + currentFrame.w <= entityX || y + currentFrame.h <= entityY || y >= entityY + entityH || x >= entityX + entityW)
+	{
+		colliding = false;
+	}
+	else 
+	{
+		colliding = true;
+
+	}
 }
 
 /* GET COLLIDER BOOL */

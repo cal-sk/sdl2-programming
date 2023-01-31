@@ -36,7 +36,6 @@ int main(int argc, char *argv[])
   SDL_Texture* world_background = window.loadTexture("res/world_background.png");
   SDL_Texture* player_texture = window.loadTexture("res/player.png");
 
-
 /* DEFINE ENTITIES AND PLAYER HERE */
   Player player(128, 128, player_texture, SCALE);
 
@@ -46,9 +45,9 @@ int main(int argc, char *argv[])
   Entity** walls = (Entity**)malloc(sizeof(Entity*) * 4);
 
   // LOOP FOR 2D DYNAMICALLY ALLOCATED ARRAY - i=0 is left i=1 is right i=2 is top i =3
+  
   for (int i=0; i < 4; i++)
   {
-    std::cout << i << std::endl;
     // LEFT AND RIGHT WALLS
     if (i==0 || i==1)
     {
@@ -56,7 +55,7 @@ int main(int argc, char *argv[])
       // allocate space for the amount of tiles around the edge
       walls[i] = (Entity*)malloc(sizeof(Entity) * (HEIGHT/TILEHEIGHT - 1));
 
-      for (int l=0; l < (HEIGHT/TILEHEIGHT) - 1; l++)
+      for (int l=0; l < (HEIGHT/TILEHEIGHT); l++)
       {
         // left wall
         if (i==0)
@@ -91,14 +90,13 @@ int main(int argc, char *argv[])
         }
       }
     }
-  }  
+  } 
 
   SDL_Event event;
 
 /* MAIN GAME LOOP */
   while (gameRunning)
   {
-
     // check for SDL events
     while(SDL_PollEvent(&event))
     {
@@ -111,7 +109,7 @@ int main(int argc, char *argv[])
         // left movement
         if (SDLK_a == event.key.keysym.sym)
         {
-          player.move(1, TILEWIDTH);
+          player.move(1, 8);
           // flip player when looking left
           playerFlip = SDL_FLIP_HORIZONTAL;
         }
@@ -134,15 +132,6 @@ int main(int argc, char *argv[])
         }
       }
     }
-    /*
-    if (player.getCollidingStatus() == true)
-    {
-      std::cout << "Colliding!" << std::endl;
-    } else {
-      std::cout << "Not Colliding!" << std::endl;
-    } */
-
-
     // clear the window
     window.clear();
 
@@ -156,23 +145,31 @@ int main(int argc, char *argv[])
       if (i == 0 || i == 1)
       {
         // SUBTRACT 1 FOR CORNERS
-        for (int l=0; l < HEIGHT/TILEHEIGHT - 1; l++)
+        for (int l=0; l < HEIGHT/TILEHEIGHT; l++)
         {
-          
+        
           window.render(walls[i][l], 1);
-          // check for colliding
-          player.isColliding(walls[i][l]);
         }
       }
       // render top and bottom walls
       if (i == 2 || i == 3)
-        for (int l=0; l < WIDTH/TILEWIDTH; l++)
+        for (int l=0; l < HEIGHT/TILEHEIGHT; l++)
         {
           window.render(walls[i][l], 1);
-          // check for colliding
-          player.isColliding(walls[i][l]);
         } 
-
+    }
+    for (int i=0; i<4; i++)
+    {
+      for (int l=0; l< 10; l++)
+      {
+        player.isColliding(walls[i][l]);
+        if (player.getCollidingStatus() == true)
+        {
+          std::cout << "row: " << i+1 << std::endl;
+          std::cout << "tile: " << l << std::endl;
+          std::cout << walls[i][l].GetY() << ", " << walls[i][l].GetX() << std::endl;
+        }
+      }
     }
     window.render_player(player, 1, playerFlip);
     window.display();
@@ -180,7 +177,7 @@ int main(int argc, char *argv[])
   }
 
 /* clean up and quit after game loop boolean is false */
-
+  
   for (int i=0; i < 4; i++)
   {
     free(walls[i]);
