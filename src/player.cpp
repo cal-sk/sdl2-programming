@@ -43,12 +43,16 @@ void Player::isColliding(Entity &p_entity)
 {
 	float entityX, entityY;
 	float entityW, entityH;
+
+	// get the X value of the entity being checked
 	entityX = p_entity.GetX();
 	entityY = p_entity.GetY();
+
+	// get the width of the entity being chekced
 	entityW = p_entity.getCurrentFrame().w;
 	entityH = p_entity.getCurrentFrame().h;
 
-	// add colliding logic here
+	// COLLISION MATH
 	if (x + currentFrame.w <= entityX || y + currentFrame.h <= entityY || y >= entityY + entityH || x >= entityX + entityW)
 	{
 		colliding = false;
