@@ -6,10 +6,10 @@ Entity::Entity(float p_x, float p_y, SDL_Texture* p_tex, int scale)
 :x(p_x), y(p_y), tex(p_tex)
 {
 	// define the current frame SDL_Rect
-	currentFrame.x = 0;
-	currentFrame.y = 0;
-	currentFrame.w = 16 * scale;
-	currentFrame.h = 16 * scale;
+	tileRect.x = 0;
+	tileRect.y = 0;
+	tileRect.w = 16 * scale;
+	tileRect.h = 16 * scale;
 }
 
 /* GET X POSITION */
@@ -31,7 +31,7 @@ SDL_Texture* Entity::getTexture()
 }
 
 /* GET CURRENT FRAME */
-SDL_Rect Entity::getCurrentFrame()
+SDL_Rect Entity::getTileRect()
 {
-	return currentFrame;
+	return tileRect;
 }

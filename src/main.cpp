@@ -24,13 +24,18 @@ NOTES: CREATE LOGIC TO STOP THE PLAYER AFTER COLLISIONS, MAYBE RAYCAST FUNCTIONS
 
 RenderWindow window("Topdown Roguelike", WIDTH, HEIGHT);
 
+/* Delta Time */
+Uint64 lastTick = 0;
+Uint64 currentTick = SDL_GetPerformanceCounter();
+double deltaTime = 0;
+
 /* 2D ARRAY FOR THE WALLS */
 Entity** walls = (Entity**)malloc(sizeof(Entity*) * 4);
 SDL_RendererFlip playerFlip = SDL_FLIP_NONE;
 
 /* LOAD TEXTURES HERE */
 
-SDL_Texture* wall_texture = window.loadTexture("res/bg.png");
+SDL_Texture* wall_texture = window.loadTexture("res/tiles.png");
 SDL_Texture* world_background = window.loadTexture("res/world_background.png");
 SDL_Texture* player_texture = window.loadTexture("res/player.png");
 
@@ -120,33 +125,7 @@ void movement(SDL_Event event)
       gameRunning = false;
     }
     // check for key input 
-    if (event.type == SDL_KEYDOWN)
-    {
-      // left movement
-      if (SDLK_a == event.key.keysym.sym)
-      {
-        player.move(1, TILEWIDTH);
-        // flip player when looking left
-        playerFlip = SDL_FLIP_HORIZONTAL;
-      }
-      // right movement
-      if (SDLK_d == event.key.keysym.sym)
-      {
-        player.move(0, TILEWIDTH);
-        // disable flip when looking
-        playerFlip = SDL_FLIP_NONE;
-      }
-      // up movement
-      if (SDLK_w == event.key.keysym.sym)
-      {
-        player.move(2, TILEWIDTH);
-      }
-      // down movement
-      if (SDLK_s == event.key.keysym.sym)
-      {
-        player.move(3, TILEWIDTH);
-      }
-    }
+    player.move(TILEHEIGHT, event);
   }
 }
 
@@ -155,7 +134,7 @@ void movement(SDL_Event event)
 void graphics()
 {
 
-  window.render(background, 8);
+  window.render(background, 10);
 
     // RENDER MEMBERS OF THE WALL ARRAY
   for (int i = 0; i < 4; i++)
@@ -176,6 +155,32 @@ void graphics()
         window.render(walls[i][l], 1);
       } 
   }
+  window.render_player(player, 1, player.playerFlip);
+}
+
+// collision function
+
+void checkCollisions()
+{
+  // loop through list of tiles to check for collisions  
+  for (int i=0; i<4; i++)
+  {
+    // loop through each tile of each wall
+    for (int l=0; l< HEIGHT/TILEHEIGHT; l++)
+    {
+      // check collisions 
+      player.isColliding(walls[i][l]);
+      // debug code
+      if (player.getCollidingStatus() == true)
+      {
+
+        // extra code for debugging
+        std::cout << "row: " << i+1 << std::endl;
+        std::cout << "tile: " << l << std::endl;
+        std::cout << walls[i][l].GetY() << ", " << walls[i][l].GetX() << std::endl;
+      }
+    }
+  }
 }
 
 
@@ -192,39 +197,28 @@ int main(int argc, char *argv[])
 /* MAIN GAME LOOP */
   while (gameRunning)
   {
+    lastTick = currentTick;
+    currentTick = SDL_GetPerformanceCounter();
+    deltaTime = (double)((currentTick - lastTick)*1000 / (double)SDL_GetPerformanceFrequency() );
     // check for movement
     movement(event);
+    player.update();
+
 
     // clear the window
     window.clear();
 
+    checkCollisions();
+
 /* RENDER ENTITIES HERE */
 
-    // render the walls
     graphics();
 
-    // loop through list of tiles to check for collisions  
-    for (int i=0; i<4; i++)
-    {
-      // loop through each tile of each wall
-      for (int l=0; l< HEIGHT/TILEHEIGHT; l++)
-      {
-        // check collisions 
-        player.isColliding(walls[i][l]);
-        // debug code
-        if (player.getCollidingStatus() == true)
-        {
-
-          // extra code for debugging
-          std::cout << "row: " << i+1 << std::endl;
-          std::cout << "tile: " << l << std::endl;
-          std::cout << walls[i][l].GetY() << ", " << walls[i][l].GetX() << std::endl;
-        }
-      }
-    }
-
-    window.render_player(player, 1, playerFlip);
     window.display();
+    if (deltaTime < 1000/60)
+    {
+      SDL_Delay(1000/60 - deltaTime);
+    }
 
   }
 
@@ -232,7 +226,7 @@ int main(int argc, char *argv[])
 
   /* FREE ALL ALLOCATED MEMORY HERE */
   deInit();
-  
+
   return 0;
 
 

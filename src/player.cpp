@@ -8,34 +8,95 @@ Player::Player(float p_x, float p_y, SDL_Texture* p_tex, int scale)
 :x(p_x), y(p_y), tex(p_tex)
 {
 	// define the current frame SDL_Rect
-	currentFrame.x = 0;
-	currentFrame.y = 0;
+	playerRect.x = 0;
+	playerRect.y = 0;
+	xVel = 0;
+	yVel = 0;
+	speed = 4;
+	xCoordinate = 0;
+	yCoordinate = 0;
 	colliding = false;
-	currentFrame.w = 16 * scale;
-	currentFrame.h = 16 * scale;
+	playerRect.w = 16 * scale;
+	playerRect.h = 16 * scale;
 }
 
 
 // move the player x, to move the destination rect
-void Player::move(int p_moveDir, float p_distance)
+void Player::move(float p_distance, SDL_Event event)
 {
-	if (p_moveDir == 0)
-	{
-		x += p_distance;
-	}
-	if (p_moveDir == 1)
-	{
-		x -= p_distance;
 	
-	}
-	if (p_moveDir == 2)
+	if (event.type == SDL_KEYDOWN && !yMoving && !xMoving)
 	{
-		y -= p_distance;
+		// delay between movement
+		SDL_Delay(250);
+		// left movement
+		if (SDLK_a == event.key.keysym.sym && !yMoving)
+		{
+			xCoordinate = x - p_distance;
+			if (x > xCoordinate)
+			{
+				xVel = -speed;
+				xMoving = true;
+			}
+
+		// flip player when looking left
+			playerFlip = SDL_FLIP_HORIZONTAL;
+		}
+		// right movement
+		if (SDLK_d == event.key.keysym.sym && !yMoving)
+		{
+			// disable flip when looking
+			xCoordinate = x + p_distance;
+			if (x < xCoordinate)
+			{
+				xVel = speed;
+				xMoving = true;
+			}
+			playerFlip = SDL_FLIP_NONE;
+		}
+		// up movement
+		if (SDLK_w == event.key.keysym.sym && !xMoving)
+		{
+			yCoordinate = y - p_distance;
+			if (y > yCoordinate)
+			{
+				yVel = -speed;
+				yMoving = true;
+			}
+		}
+		// down movement
+		if (SDLK_s == event.key.keysym.sym && !xMoving)
+		{
+			yCoordinate = y + p_distance;
+			if (y < yCoordinate)
+			{
+				yVel = speed;
+				yMoving = true;
+			}
+		}
+
 	}
-	if (p_moveDir == 3)
+}
+
+void Player::update()
+{
+	if (y == yCoordinate)
 	{
-		y += p_distance;
-	
+		yVel = 0;
+		yMoving = false;
+	}
+	if (x == xCoordinate)
+	{
+		xVel = 0;
+		xMoving = false;
+	}
+	if (y != yCoordinate && !xMoving)
+	{
+		y += yVel;
+	}
+	if (x != xCoordinate && !yMoving)
+	{
+		x += xVel;
 	}
 }
 
@@ -49,11 +110,11 @@ void Player::isColliding(Entity &p_entity)
 	entityY = p_entity.GetY();
 
 	// get the width of the entity being chekced
-	entityW = p_entity.getCurrentFrame().w;
-	entityH = p_entity.getCurrentFrame().h;
+	entityW = p_entity.getTileRect().w;
+	entityH = p_entity.getTileRect().h;
 
 	// COLLISION MATH
-	if (x + currentFrame.w <= entityX || y + currentFrame.h <= entityY || y >= entityY + entityH || x >= entityX + entityW)
+	if (x + playerRect.w + 1 <= entityX || y + playerRect.h + 1 <= entityY || y -1 >= entityY + entityH || x -1 >= entityX + entityW)
 	{
 		colliding = false;
 	}
@@ -89,7 +150,7 @@ SDL_Texture* Player::getTexture()
 }
 
 /* GET CURRENT FRAME */
-SDL_Rect Player::getCurrentFrame()
+SDL_Rect Player::getPlayerRect()
 {
-	return currentFrame;
+	return playerRect;
 }

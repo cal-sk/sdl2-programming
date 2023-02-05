@@ -36,17 +36,17 @@ void RenderWindow::render(Entity &p_entity, int scale)
 {
     // 
     SDL_Rect src;
-    src.x = p_entity.getCurrentFrame().x;   
-    src.y = p_entity.getCurrentFrame().y;
-    src.w = p_entity.getCurrentFrame().w;
-    src.h = p_entity.getCurrentFrame().h;
+    src.x = p_entity.getTileRect().x;   
+    src.y = p_entity.getTileRect().y;
+    src.w = p_entity.getTileRect().w;
+    src.h = p_entity.getTileRect().h;
     
     //
     SDL_Rect dst;
     dst.x = p_entity.GetX();
     dst.y = p_entity.GetY();
-    dst.w = p_entity.getCurrentFrame().w * scale;
-    dst.h = p_entity.getCurrentFrame().h * scale;
+    dst.w = p_entity.getTileRect().w * scale;
+    dst.h = p_entity.getTileRect().h * scale;
 
     // render the texture to the screen
     SDL_RenderCopy(renderer, p_entity.getTexture(), &src, &dst);
@@ -57,17 +57,17 @@ void RenderWindow::render_player(Player &p_player, int scale, SDL_RendererFlip f
 {
     // 
     SDL_Rect src;
-    src.x = p_player.getCurrentFrame().x;   
-    src.y = p_player.getCurrentFrame().y;
-    src.w = p_player.getCurrentFrame().w;
-    src.h = p_player.getCurrentFrame().h;
+    src.x = p_player.getPlayerRect().x;   
+    src.y = p_player.getPlayerRect().y;
+    src.w = p_player.getPlayerRect().w;
+    src.h = p_player.getPlayerRect().h;
     
     //
     SDL_Rect dst;
     dst.x = p_player.GetX();
     dst.y = p_player.GetY();
-    dst.w = p_player.getCurrentFrame().w * scale;
-    dst.h = p_player.getCurrentFrame().h * scale;
+    dst.w = p_player.getPlayerRect().w * scale;
+    dst.h = p_player.getPlayerRect().h * scale;
 
     // render the texture to the screen
     // use render copy ex to flip the texture 

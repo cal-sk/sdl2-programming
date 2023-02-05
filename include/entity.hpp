@@ -10,10 +10,10 @@ public:
 	float GetX();
 	float GetY();
 	SDL_Texture* getTexture();
-	SDL_Rect getCurrentFrame();
+	SDL_Rect getTileRect();
 private:
 	float x, y;
-	SDL_Rect currentFrame;
+	SDL_Rect tileRect;
 	SDL_Texture* tex;
 };
 
