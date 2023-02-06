@@ -15,6 +15,7 @@ RenderWindow::RenderWindow(const char* p_title, int p_w, int p_h)
     if (window == NULL){
         std::cout << "Error with window" << SDL_GetError() << std::endl;
     }
+    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
     renderer = SDL_CreateRenderer(window, -1, 0);
 }
 

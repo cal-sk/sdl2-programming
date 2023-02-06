@@ -8,21 +8,21 @@
 #include <entity.hpp>
 #include <player.hpp>
 
-// define window height and width
-#define WIDTH 640
-#define HEIGHT 640
+// define window SCREEN_HEIGHT and SCREEN_WIDTH
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 640
 #define SCALE 4
-#define TILEWIDTH SCALE * 16
-#define TILEHEIGHT SCALE * 16
+#define TILE_W 64
+#define TILE_H 64
 
 
 /* 
-NOTES: CREATE LOGIC TO STOP THE PLAYER AFTER COLLISIONS, MAYBE RAYCAST FUNCTIONS?
-        CREATE TILEMAP SYSTEM AND ADD COLLISION LOOPS
+NOTES: tilemap logic: look through 2d int array for 1 and 2, count the amount of 1s and 2s and allocate space for them in 2d entity array
+
 
 */
 
-RenderWindow window("Topdown Roguelike", WIDTH, HEIGHT);
+RenderWindow window("Topdown Roguelike", SCREEN_WIDTH, SCREEN_HEIGHT);
 
 /* Delta Time */
 Uint64 lastTick = 0;
@@ -30,86 +30,83 @@ Uint64 currentTick = SDL_GetPerformanceCounter();
 double deltaTime = 0;
 
 /* 2D ARRAY FOR THE WALLS */
-Entity** walls = (Entity**)malloc(sizeof(Entity*) * 4);
-SDL_RendererFlip playerFlip = SDL_FLIP_NONE;
+Entity** tilemap = (Entity**)malloc(sizeof(Entity*) * 10);
+int map[10][20] = {
+  {1, 1, 1, 1, 1, 1 ,1 ,1 ,1,1,1,1,1,1,1,1,1,1,1,1},
+  {2, 0, 0, 0, 0, 0 ,0 ,0 ,0,0,0,0,0,0,0,0,0,0,0,2},
+  {2, 0, 0, 0, 0, 0 ,0 ,0 ,0,0,0,0,0,0,0,0,0,0,0,2},
+  {2, 0, 0, 0, 0, 0 ,0 ,0 ,0,0,0,0,0,0,0,0,0,0,0,2},
+  {2, 0, 0, 0, 0, 0 ,0 ,0 ,0,0,0,0,0,0,0,0,0,0,0,2},
+  {2, 0, 0, 0, 0, 0 ,0 ,0 ,0,0,0,2,0,0,0,0,0,0,0,2},
+  {2, 2, 0, 0, 0, 0 ,0 ,0 ,0,0,0,0,0,0,0,0,0,0,0,2},
+  {2, 0, 0, 0, 0, 0 ,0 ,0 ,0,0,0,0,0,0,0,0,0,0,0,2},
+  {2, 0, 0, 0, 0, 0 ,0 ,0 ,0,0,0,0,0,0,0,0,0,0,0,2},
+  {1, 1, 1, 1, 1, 1 ,1 ,1 ,1,1,1,1,1,1,1,1,1,1,1,1},
+};
+
 
 /* LOAD TEXTURES HERE */
 
-SDL_Texture* wall_texture = window.loadTexture("res/tiles.png");
+SDL_Texture* vertical_wall_texture = window.loadTexture("res/vertical_tiles.png");
+SDL_Texture* horizontal_wall_texture = window.loadTexture("res/horizontal_tiles.png");
 SDL_Texture* world_background = window.loadTexture("res/world_background.png");
 SDL_Texture* player_texture = window.loadTexture("res/player.png");
 
 /* DEFINE ENTITIES AND PLAYER HERE */
-Player player(128, 128, player_texture, SCALE);
+Player player(320, 320, player_texture, SCALE);
 
-Entity background = Entity(0,0, world_background, 8);
+Entity world = Entity(0, 0, world_background, 2000);
 
 SDL_Event event;
 
 bool gameRunning = true;
 
-// createwalls function
-
-void createWalls()
+void initTilemap()
 {
-  // LOOP FOR 2D DYNAMICALLY ALLOCATED ARRAY - i=0 is left i=1 is right i=2 is top i =3
-  for (int i=0; i < 4; i++)
+  for (int i =0; i<10; i++)
   {
-    // LEFT AND RIGHT WALLS
-    if (i==0 || i==1)
+    int count = 0;
+    for (int l=0; l<20; l++)
     {
-      // SUBTRACT 1 FOR CORNERS
-      // allocate space for the amount of tiles around the edge
-      walls[i] = (Entity*)malloc(sizeof(Entity) * (HEIGHT/TILEHEIGHT - 1));
-
-      for (int l=0; l < (HEIGHT/TILEHEIGHT); l++)
+      if (map[i][l] == 1 || map[i][l] == 2 || map[i][l] == 0)
       {
-        // left wall
-        if (i==0)
-        {
-          walls[i][l] = Entity(0, (l * TILEHEIGHT) + TILEHEIGHT, wall_texture, SCALE);
-        }
-        // right wall
-        else if (i==1)
-        {
-          walls[i][l] = Entity(WIDTH-TILEWIDTH, (l * TILEHEIGHT) + TILEHEIGHT, wall_texture, SCALE);
-        }
+        count++;
       }
     }
-    
-    // TOP AND BOTTOM WALLS
-    if (i==2 || i==3)
-    {
-      // allocate space for the amount of tiles around the edge
-      walls[i] = (Entity*)malloc(sizeof(Entity) * WIDTH/TILEWIDTH);
+    tilemap[i] = (Entity*)malloc(sizeof(Entity) * count);
+  }
 
-      for (int l=0; l < WIDTH/TILEWIDTH; l++)
+  for (int i =0; i<10; i++)
+  {
+    for (int l=0; l<20; l++)
+    {
+      if (map[i][l] == 1)
       {
-        // top wall
-        if (i==2)
-        {
-          walls[i][l] = Entity(TILEWIDTH * l, 0, wall_texture, SCALE);
-        }
-        // bottom wall
-        else if (i==3)
-        {
-          walls[i][l] = Entity(TILEWIDTH * l, HEIGHT-TILEHEIGHT, wall_texture, SCALE);
-        }
+        tilemap[i][l] = Entity((l * TILE_H), (i * TILE_H), vertical_wall_texture, SCALE);
+      }
+      if (map[i][l] == 2)
+      {
+        tilemap[i][l] = Entity((l * TILE_H), (i * TILE_H), horizontal_wall_texture, SCALE);
+      }
+      if (map[i][l] == 0)
+      {
+        tilemap[i][l] = Entity((l * TILE_H), (i * TILE_H), vertical_wall_texture, SCALE);
       }
     }
-  } 
+  }
 }
+
 
 // de-initialization function
 
 void deInit()
 {
-  for (int i=0; i < 4; i++)
-  {
-    free(walls[i]);
-  }
-  free(walls);
   
+  for (int i=0; i< 10; i++)
+  {
+    free(tilemap[i]);
+  } 
+  free(tilemap);
   window.cleanUp();
   SDL_Quit();
 }
@@ -125,7 +122,7 @@ void movement(SDL_Event event)
       gameRunning = false;
     }
     // check for key input 
-    player.move(TILEHEIGHT, event);
+    player.move(TILE_H, event);
   }
 }
 
@@ -134,27 +131,19 @@ void movement(SDL_Event event)
 void graphics()
 {
 
-  window.render(background, 10);
+  window.render(world, 1);
 
-    // RENDER MEMBERS OF THE WALL ARRAY
-  for (int i = 0; i < 4; i++)
+  for (int i=0; i<10; i++)
   {
-    // render left and right walls
-    if (i == 0 || i == 1)
+    
+    for (int l=0; l < 20; l++)
     {
-      for (int l=0; l < HEIGHT/TILEHEIGHT; l++)
+      if (map[i][l] != 0)
       {
-      
-        window.render(walls[i][l], 1);
+        window.render(tilemap[i][l], 1);
       }
-    }
-    // render top and bottom walls
-    if (i == 2 || i == 3)
-      for (int l=0; l < HEIGHT/TILEHEIGHT; l++)
-      {
-        window.render(walls[i][l], 1);
-      } 
-  }
+    } 
+  } 
   window.render_player(player, 1, player.playerFlip);
 }
 
@@ -162,25 +151,22 @@ void graphics()
 
 void checkCollisions()
 {
-  // loop through list of tiles to check for collisions  
-  for (int i=0; i<4; i++)
+  for (int i=0; i<10; i++)
   {
-    // loop through each tile of each wall
-    for (int l=0; l< HEIGHT/TILEHEIGHT; l++)
+    
+    for (int l=0; l < 20; l++)
     {
-      // check collisions 
-      player.isColliding(walls[i][l]);
-      // debug code
-      if (player.getCollidingStatus() == true)
+      if (map[i][l] != 0)
       {
-
-        // extra code for debugging
-        std::cout << "row: " << i+1 << std::endl;
-        std::cout << "tile: " << l << std::endl;
-        std::cout << walls[i][l].GetY() << ", " << walls[i][l].GetX() << std::endl;
+        player.isColliding(tilemap[i][l]);
+        if (player.getCollidingStatus() == true)
+        {
+          std::cout << i * 64 << ", " << l * 64 << std::endl;
+        }
       }
-    }
+    } 
   }
+
 }
 
 
@@ -191,7 +177,8 @@ int main(int argc, char *argv[])
   if (!(IMG_Init(IMG_INIT_PNG))) std::cout << "IMG Init failure" << SDL_GetError() << std::endl;
 
 // create the walls
-  createWalls();
+  // createWalls();
+  initTilemap();
 
 
 /* MAIN GAME LOOP */
@@ -215,9 +202,9 @@ int main(int argc, char *argv[])
     graphics();
 
     window.display();
-    if (deltaTime < 1000/60)
+    if (deltaTime < 1000/48)
     {
-      SDL_Delay(1000/60 - deltaTime);
+      SDL_Delay(1000/48 - deltaTime);
     }
 
   }

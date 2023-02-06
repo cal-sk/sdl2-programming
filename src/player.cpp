@@ -12,7 +12,7 @@ Player::Player(float p_x, float p_y, SDL_Texture* p_tex, int scale)
 	playerRect.y = 0;
 	xVel = 0;
 	yVel = 0;
-	speed = 4;
+	speed = 16;
 	xCoordinate = 0;
 	yCoordinate = 0;
 	colliding = false;
@@ -24,11 +24,10 @@ Player::Player(float p_x, float p_y, SDL_Texture* p_tex, int scale)
 // move the player x, to move the destination rect
 void Player::move(float p_distance, SDL_Event event)
 {
-	
 	if (event.type == SDL_KEYDOWN && !yMoving && !xMoving)
 	{
+		SDL_Delay(80);
 		// delay between movement
-		SDL_Delay(250);
 		// left movement
 		if (SDLK_a == event.key.keysym.sym && !yMoving)
 		{
@@ -114,7 +113,7 @@ void Player::isColliding(Entity &p_entity)
 	entityH = p_entity.getTileRect().h;
 
 	// COLLISION MATH
-	if (x + playerRect.w + 1 <= entityX || y + playerRect.h + 1 <= entityY || y -1 >= entityY + entityH || x -1 >= entityX + entityW)
+	if (x + playerRect.w <= entityX || y + playerRect.h <= entityY || y  >= entityY + entityH || x >= entityX + entityW)
 	{
 		colliding = false;
 	}
