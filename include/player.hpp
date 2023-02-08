@@ -12,17 +12,19 @@ public:
 	float GetY();
 	SDL_RendererFlip playerFlip;
 	void move(float p_distance, SDL_Event event);
-	void update();
-	void isColliding(Entity &p_entity);
+	void update(Entity** tilemap, int map[9][16]);
+	bool collide(Entity p_entity);
+	void checkCollisionsX(Entity** tilemap, int map[9][16]);
+	void checkCollisionsY(Entity** tilemap, int map[9][16]);
+	Entity* getHits(Entity** tilemap, int map_l, int map_w, int map[9][16]);
 	SDL_Texture* getTexture();
 	SDL_Rect getPlayerRect();
-	bool getCollidingStatus();
 private:
 	int speed;
 	bool xMoving, yMoving;
 	float xCoordinate, yCoordinate;
+	bool canMoveLeft, canMoveRight, canMoveUp, canMoveDown;
 	float xVel, yVel;
-	bool colliding;
 	float x, y;
 	SDL_Rect playerRect;
 	SDL_Texture* tex;
